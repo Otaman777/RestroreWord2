@@ -1,6 +1,7 @@
 package com.maksymov.restoretheword2;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
@@ -16,11 +17,13 @@ public class WordLoaderService extends Service {
     private final String LEVEL = "LEVEL";
     private final String TIME = "TIME";
     private SharedPreferences sPref;
+    private CustomBinder binder = new CustomBinder();
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(LOG_TAG, "WordLoaderService has been created!!!");
+        sPref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
     }
 
     public int readTime() {
@@ -28,7 +31,6 @@ public class WordLoaderService extends Service {
     }
 
     public boolean readLevel() {
-
         if (sPref.getString(LEVEL, "short").equals("short")) {
             return false;
         } else if (sPref.getString(LEVEL, "short").equals("veteran"))
@@ -37,16 +39,30 @@ public class WordLoaderService extends Service {
     }
 
     public void writeData(String level, int time) {
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putString(LEVEL, level);
-        ed.putInt(TIME, time);
+//        SharedPreferences.Editor ed = sPref.edit();
+//        ed.putString(LEVEL, level);
+//        ed.putInt(TIME, time);
+
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt(TIME, time);
+        editor.putString(LEVEL, level);
+
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        Log.d(LOG_TAG, "onBind");
+        return binder;
     }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d(LOG_TAG, "onUnbind");
+        return super.onUnbind(intent);
+    }
+
 
     public class CustomBinder extends Binder {
         public WordLoaderService getService() {

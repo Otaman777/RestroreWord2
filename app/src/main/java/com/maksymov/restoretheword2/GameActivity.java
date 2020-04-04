@@ -57,24 +57,21 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         intent = new Intent(this, WordLoaderService.class);
-        sConn = new ServiceConnection() {
-            public void onServiceConnected(ComponentName name, IBinder binder) {
-                Log.d(LOG_TAG, "Settings onServiceConnected");
-                wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
-                bound = true;
-            }
-
-            public void onServiceDisconnected(ComponentName name) {
-                Log.d(LOG_TAG, "Settings onServiceDisconnected");
-                bound = false;
-            }
-        };
-
-        //????????
-        if (!bound) return;
-
+        if (wordLoaderService == null) return;
         level = wordLoaderService.readLevel();
         remainingTime = wordLoaderService.readTime();
+//        sConn = new ServiceConnection() {
+//            public void onServiceConnected(ComponentName name, IBinder binder) {
+//                Log.d(LOG_TAG, "Settings onServiceConnected");
+//                wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
+//                bound = true;
+//            }
+//
+//            public void onServiceDisconnected(ComponentName name) {
+//                Log.d(LOG_TAG, "Settings onServiceDisconnected");
+//                bound = false;
+//            }
+//        };
 
         textView1 = findViewById(R.id.firstR);
         textView2 = findViewById(R.id.secondR);
@@ -126,16 +123,30 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        bindService(intent, sConn, 0);
+        Intent intent = new Intent(this, WordLoaderService.class);
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (!bound) return;
-        unbindService(sConn);
-        bound = false;
+        unbindService(serviceConnection);
     }
+
+
+    private ServiceConnection serviceConnection =
+            new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder binder) {
+                    wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    wordLoaderService = null;
+                }
+            };
+
 
     private String randomizeLetters(String word) {
         Random random = new Random();

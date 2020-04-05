@@ -20,9 +20,9 @@ public class GameActivity extends AppCompatActivity {
 
     final String LOG_TAG = "myLog";
     private Intent intent;
-    private WordLoaderService wordLoaderService;
+    WordLoaderService wordLoaderService;
     private ServiceConnection sConn;
-    boolean bound = false;
+    //boolean bound = false;
 
 
     private CountDownTimer countDownTimer = null;
@@ -56,22 +56,15 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        intent = new Intent(this, WordLoaderService.class);
+
+
         if (wordLoaderService == null) return;
         level = wordLoaderService.readLevel();
         remainingTime = wordLoaderService.readTime();
-//        sConn = new ServiceConnection() {
-//            public void onServiceConnected(ComponentName name, IBinder binder) {
-//                Log.d(LOG_TAG, "Settings onServiceConnected");
-//                wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
-//                bound = true;
-//            }
-//
-//            public void onServiceDisconnected(ComponentName name) {
-//                Log.d(LOG_TAG, "Settings onServiceDisconnected");
-//                bound = false;
-//            }
-//        };
+
+        Log.d(LOG_TAG, String.valueOf(level));
+        Log.d(LOG_TAG, remainingTime + "");
+
 
         textView1 = findViewById(R.id.firstR);
         textView2 = findViewById(R.id.secondR);
@@ -93,28 +86,28 @@ public class GameActivity extends AppCompatActivity {
         textView88 = findViewById(R.id.eighth);
         textView99 = findViewById(R.id.ninth);
         counterTextView = findViewById(R.id.counter);
-        counterTextView.setText("0");
+        counterTextView.setText("AAAAAAAA");
         timer = findViewById(R.id.timer);
         stage = 1;
         fillingInTheRandomLayout(stage);
-        textView1.setOnClickListener((View.OnClickListener) this);
-        textView2.setOnClickListener((View.OnClickListener) this);
-        textView3.setOnClickListener((View.OnClickListener) this);
-        textView4.setOnClickListener((View.OnClickListener) this);
-        textView5.setOnClickListener((View.OnClickListener) this);
-        textView6.setOnClickListener((View.OnClickListener) this);
-        textView7.setOnClickListener((View.OnClickListener) this);
-        textView8.setOnClickListener((View.OnClickListener) this);
-        textView9.setOnClickListener((View.OnClickListener) this);
-        textView11.setOnClickListener((View.OnClickListener) this);
-        textView22.setOnClickListener((View.OnClickListener) this);
-        textView33.setOnClickListener((View.OnClickListener) this);
-        textView44.setOnClickListener((View.OnClickListener) this);
-        textView55.setOnClickListener((View.OnClickListener) this);
-        textView66.setOnClickListener((View.OnClickListener) this);
-        textView77.setOnClickListener((View.OnClickListener) this);
-        textView88.setOnClickListener((View.OnClickListener) this);
-        textView99.setOnClickListener((View.OnClickListener) this);
+//        textView1.setOnClickListener((View.OnClickListener) this);
+//        textView2.setOnClickListener((View.OnClickListener) this);
+//        textView3.setOnClickListener((View.OnClickListener) this);
+//        textView4.setOnClickListener((View.OnClickListener) this);
+//        textView5.setOnClickListener((View.OnClickListener) this);
+//        textView6.setOnClickListener((View.OnClickListener) this);
+//        textView7.setOnClickListener((View.OnClickListener) this);
+//        textView8.setOnClickListener((View.OnClickListener) this);
+//        textView9.setOnClickListener((View.OnClickListener) this);
+//        textView11.setOnClickListener((View.OnClickListener) this);
+//        textView22.setOnClickListener((View.OnClickListener) this);
+//        textView33.setOnClickListener((View.OnClickListener) this);
+//        textView44.setOnClickListener((View.OnClickListener) this);
+//        textView55.setOnClickListener((View.OnClickListener) this);
+//        textView66.setOnClickListener((View.OnClickListener) this);
+//        textView77.setOnClickListener((View.OnClickListener) this);
+//        textView88.setOnClickListener((View.OnClickListener) this);
+//        textView99.setOnClickListener((View.OnClickListener) this);
 
         timer.setText((int) remainingTime);
 
@@ -132,7 +125,6 @@ public class GameActivity extends AppCompatActivity {
         super.onStop();
         unbindService(serviceConnection);
     }
-
 
     private ServiceConnection serviceConnection =
             new ServiceConnection() {

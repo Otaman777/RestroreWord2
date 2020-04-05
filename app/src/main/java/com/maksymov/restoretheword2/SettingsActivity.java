@@ -30,20 +30,20 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        intent = new Intent(this, WordLoaderService.class);
-        sConn = new ServiceConnection() {
-
-            public void onServiceConnected(ComponentName name, IBinder binder) {
-                Log.d(LOG_TAG, "Settings onServiceConnected");
-                wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
-                bound = true;
-            }
-
-            public void onServiceDisconnected(ComponentName name) {
-                Log.d(LOG_TAG, "Settings onServiceDisconnected");
-                bound = false;
-            }
-        };
+//        intent = new Intent(this, WordLoaderService.class);
+//        sConn = new ServiceConnection() {
+//
+//            public void onServiceConnected(ComponentName name, IBinder binder) {
+//                Log.d(LOG_TAG, "Settings onServiceConnected");
+//                wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
+//                bound = true;
+//            }
+//
+//            public void onServiceDisconnected(ComponentName name) {
+//                Log.d(LOG_TAG, "Settings onServiceDisconnected");
+//                bound = false;
+//            }
+//        };
 
         // адаптер
         ArrayAdapter<String> adapterLevel = new ArrayAdapter<String>(this, R.layout.spinner_item, levels);
@@ -91,25 +91,36 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
     }
-
     @Override
     protected void onStart() {
         super.onStart();
-        bindService(intent, sConn, 0);
+        Intent intent = new Intent(this, WordLoaderService.class);
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (!bound) return;
-        unbindService(sConn);
-        bound = false;
+        unbindService(serviceConnection);
     }
+
+    private ServiceConnection serviceConnection =
+            new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder binder) {
+                    wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    wordLoaderService = null;
+                }
+            };
 
     public void onClickSaveSettings(View view) {
         Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
         startActivity(intent);
-        if (!bound) return;
+        if (wordLoaderService == null) return;
         wordLoaderService.writeData(level, time);
 
     }

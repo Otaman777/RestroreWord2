@@ -27,6 +27,7 @@ public class WordLoaderService extends Service {
     }
 
     public int readTime() {
+        Log.d("AAA", String.valueOf(sPref.getInt(TIME, 999999999)));
         return sPref.getInt(TIME, 999999999);
     }
 
@@ -47,6 +48,9 @@ public class WordLoaderService extends Service {
         SharedPreferences.Editor editor = pref.edit();
         editor.putInt(TIME, time);
         editor.putString(LEVEL, level);
+        editor.apply();
+        Log.d("AAA", String.valueOf(sPref.getInt(TIME, 999999999)));
+        Log.d("AAAB", String.valueOf(time));
 
     }
 

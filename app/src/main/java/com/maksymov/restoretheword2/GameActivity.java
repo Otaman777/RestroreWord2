@@ -18,8 +18,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.maksymov.restoretheword2.wordsStore.Words;
-
 import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
@@ -32,7 +30,6 @@ public class GameActivity extends AppCompatActivity {
     private long remainingTime = 999999999;
     private byte counter = 0;
     private int stage;
-    //private Words words;
     private TextView counterTextView;
     private TextView textView1;
     private TextView textView2;
@@ -80,7 +77,6 @@ public class GameActivity extends AppCompatActivity {
         outState.putString("textView99", textView99.getText().toString());
         outState.putString("counterTextView", counterTextView.getText().toString());
         outState.putByte("counter", counter);
-        //outState.putInt("timer", Integer.parseInt(timer.getText().toString()));
         outState.putLong("remainingTime", remainingTime);
         outState.putBoolean("isGame", isGame);
         Log.d("Час при збереженні", String.valueOf(remainingTime));
@@ -189,19 +185,6 @@ public class GameActivity extends AppCompatActivity {
             }.start();
 
         }
-//        else countDownTimer = new CountDownTimer(remainingTime, 1000) {
-//            public void onTick(long millisUntilFinished) {
-//                remainingTime = millisUntilFinished / 1000;
-//                timer.setText(millisUntilFinished / 1000 + "");
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//                Log.d("ZZZ", "FINISHED BY METHOD onFinish");
-//                dialogFinish();
-//            }
-//        }.start();
-
     }
 
 
@@ -210,12 +193,6 @@ public class GameActivity extends AppCompatActivity {
         super.onStart();
         Intent intent = new Intent(this, WordLoaderService.class);
         bindService(intent, serviceConnection, BIND_AUTO_CREATE);
-//        if (wordLoaderService == null) return;
-//        level = wordLoaderService.readLevel();
-//        remainingTime = wordLoaderService.readTime();
-//
-//        Log.d(LOG_TAG, String.valueOf(level));
-//        Log.d(LOG_TAG, remainingTime + "");
     }
 
     @Override
@@ -1061,7 +1038,6 @@ public class GameActivity extends AppCompatActivity {
 
     public void onClickStartGame(View view) {
         if (wordLoaderService == null) return;
-        //wordLoaderService.fillInWords();
         level = wordLoaderService.readLevel();
         remainingTime = wordLoaderService.readTime();
         isGame = true;
@@ -1080,13 +1056,6 @@ public class GameActivity extends AppCompatActivity {
                 dialogFinish();
             }
         }.start();
-//        level = wordLoaderService.readLevel();
-//        remainingTime = wordLoaderService.readTime();
-//
-//        Log.d(LOG_TAG, String.valueOf(level));
-//        Log.d(LOG_TAG, remainingTime + "");
-
-
         fillingInTheRandomLayout(stage);
     }
 }

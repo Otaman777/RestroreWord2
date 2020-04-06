@@ -11,8 +11,6 @@ import androidx.annotation.Nullable;
 
 public class WordLoaderService extends Service {
     final String LOG_TAG = "myLog";
-    private int time;
-    private String level;
     private final String LEVEL = "LEVEL";
     private final String TIME = "TIME";
 
@@ -25,7 +23,6 @@ public class WordLoaderService extends Service {
 
     private SharedPreferences sPref;
     private CustomBinder binder = new CustomBinder();
-    private final String WORDS_PREF = "WORDS";
 
     @Override
     public void onCreate() {
@@ -34,7 +31,8 @@ public class WordLoaderService extends Service {
         sPref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         fillInWords();
     }
-    public void fillInWords () {
+
+    public void fillInWords() {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putString(TIME_WORD, "TIME");
@@ -49,18 +47,23 @@ public class WordLoaderService extends Service {
     public String readWordTime() {
         return sPref.getString(TIME_WORD, "");
     }
+
     public String readWordEvent() {
         return sPref.getString(EVENT_WORD, "");
     }
+
     public String readWordCorona() {
         return sPref.getString(CORONA_WORD, "");
     }
+
     public String readWordRestore() {
         return sPref.getString(RESTORE_WORD, "");
     }
+
     public String readWordBookmark() {
         return sPref.getString(BOOKMARK_WORD, "");
     }
+
     public String readWordMicrosoft() {
         return sPref.getString(MICROSOFT_WORD, "");
     }
@@ -79,10 +82,6 @@ public class WordLoaderService extends Service {
     }
 
     public void writeData(String level, int time) {
-//        SharedPreferences.Editor ed = sPref.edit();
-//        ed.putString(LEVEL, level);
-//        ed.putInt(TIME, time);
-
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putInt(TIME, time);

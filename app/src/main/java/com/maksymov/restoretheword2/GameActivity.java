@@ -18,7 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.maksymov.restoretheword2.wordsStore.Words;
+//import com.maksymov.restoretheword2.wordsStore.Words;
 
 import java.util.Random;
 
@@ -32,7 +32,7 @@ public class GameActivity extends AppCompatActivity {
     private long remainingTime = 999999999;
     private byte counter = 0;
     private int stage;
-    private Words words;
+    //private Words words;
     private TextView counterTextView;
     private TextView textView1;
     private TextView textView2;
@@ -118,7 +118,7 @@ public class GameActivity extends AppCompatActivity {
         counterTextView.setText("0");
         timer = findViewById(R.id.timer);
         stage = 1;
-        fillingInTheRandomLayout(stage);
+
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder binder) {
@@ -130,6 +130,7 @@ public class GameActivity extends AppCompatActivity {
                 wordLoaderService = null;
             }
         };
+        //fillingInTheRandomLayout(stage);
         textView1.setOnClickListener(listener);
         textView2.setOnClickListener(listener);
         textView3.setOnClickListener(listener);
@@ -883,12 +884,12 @@ public class GameActivity extends AppCompatActivity {
 
     private boolean checkForFinish(int stage) {
         StringBuilder str = new StringBuilder();
-        StringBuilder time = new StringBuilder(words.TIME.toString());
-        StringBuilder event = new StringBuilder(words.EVENT.toString());
-        StringBuilder corona = new StringBuilder(words.CORONA.toString());
-        StringBuilder restore = new StringBuilder(words.RESTORE.toString());
-        StringBuilder bookmark = new StringBuilder(words.BOOKMARK.toString());
-        StringBuilder microsoft = new StringBuilder(words.MICROSOFT.toString());
+        StringBuilder time = new StringBuilder(wordLoaderService.readWordTime());
+        StringBuilder event = new StringBuilder(wordLoaderService.readWordEvent());
+        StringBuilder corona = new StringBuilder(wordLoaderService.readWordCorona());
+        StringBuilder restore = new StringBuilder(wordLoaderService.readWordRestore());
+        StringBuilder bookmark = new StringBuilder(wordLoaderService.readWordBookmark());
+        StringBuilder microsoft = new StringBuilder(wordLoaderService.readWordMicrosoft());
         str.append(textView11.getText().toString());
         str.append(textView22.getText().toString());
         str.append(textView33.getText().toString());
@@ -965,12 +966,12 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void fillingInTheRandomLayout(int stage) {
-        String timeRand = randomizeLetters(words.TIME.toString());
-        String eventRand = randomizeLetters(words.EVENT.toString());
-        String coronaRand = randomizeLetters(words.CORONA.toString());
-        String restoreRand = randomizeLetters(words.RESTORE.toString());
-        String bookmarkRand = randomizeLetters(words.BOOKMARK.toString());
-        String microsoftRand = randomizeLetters(words.MICROSOFT.toString());
+        String timeRand = randomizeLetters(wordLoaderService.readWordTime());
+        String eventRand = randomizeLetters(wordLoaderService.readWordEvent());
+        String coronaRand = randomizeLetters(wordLoaderService.readWordCorona());
+        String restoreRand = randomizeLetters(wordLoaderService.readWordRestore());
+        String bookmarkRand = randomizeLetters(wordLoaderService.readWordBookmark());
+        String microsoftRand = randomizeLetters(wordLoaderService.readWordMicrosoft());
         if (!level && stage == 1) {
             textView1.setText(String.valueOf(timeRand.charAt(0)));
             textView2.setText(String.valueOf(timeRand.charAt(1)));
@@ -1060,6 +1061,7 @@ public class GameActivity extends AppCompatActivity {
 
     public void onClickStartGame(View view) {
         if (wordLoaderService == null) return;
+        //wordLoaderService.fillInWords();
         level = wordLoaderService.readLevel();
         remainingTime = wordLoaderService.readTime();
         isGame = true;

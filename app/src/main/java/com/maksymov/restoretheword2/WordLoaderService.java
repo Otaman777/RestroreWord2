@@ -15,14 +15,54 @@ public class WordLoaderService extends Service {
     private String level;
     private final String LEVEL = "LEVEL";
     private final String TIME = "TIME";
+
+    private final String TIME_WORD = "time";
+    private final String EVENT_WORD = "event";
+    private final String CORONA_WORD = "corona";
+    private final String RESTORE_WORD = "restore";
+    private final String BOOKMARK_WORD = "bookmark";
+    private final String MICROSOFT_WORD = "microsoft";
+
     private SharedPreferences sPref;
     private CustomBinder binder = new CustomBinder();
+    private final String WORDS_PREF = "WORDS";
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(LOG_TAG, "WordLoaderService has been created!!!");
         sPref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        fillInWords();
+    }
+    public void fillInWords () {
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(TIME_WORD, "TIME");
+        editor.putString(EVENT_WORD, "EVENT");
+        editor.putString(CORONA_WORD, "CORONA");
+        editor.putString(RESTORE_WORD, "RESTORE");
+        editor.putString(BOOKMARK_WORD, "BOOKMARK");
+        editor.putString(MICROSOFT_WORD, "MICROSOFT");
+        editor.apply();
+    }
+
+    public String readWordTime() {
+        return sPref.getString(TIME_WORD, "");
+    }
+    public String readWordEvent() {
+        return sPref.getString(EVENT_WORD, "");
+    }
+    public String readWordCorona() {
+        return sPref.getString(CORONA_WORD, "");
+    }
+    public String readWordRestore() {
+        return sPref.getString(RESTORE_WORD, "");
+    }
+    public String readWordBookmark() {
+        return sPref.getString(BOOKMARK_WORD, "");
+    }
+    public String readWordMicrosoft() {
+        return sPref.getString(MICROSOFT_WORD, "");
     }
 
     public int readTime() {

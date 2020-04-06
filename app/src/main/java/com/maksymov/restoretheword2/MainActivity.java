@@ -26,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickStartGame(View view) {
         if (wordLoaderService == null) return;
-        wordLoaderService.writeData("veteran", 7000);
+        if (wordLoaderService.readTime() == 999999999)
+            wordLoaderService.writeData("short", 60000);
         Intent intent = new Intent(MainActivity.this, GameActivity.class);
         startActivity(intent);
     }

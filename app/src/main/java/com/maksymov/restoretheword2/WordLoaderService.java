@@ -1,7 +1,6 @@
 package com.maksymov.restoretheword2;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;

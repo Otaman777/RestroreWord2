@@ -119,7 +119,6 @@ public class GameActivity extends AppCompatActivity {
         counterTextView.setText("0");
         timer = findViewById(R.id.timer);
         stage = 1;
-        //fillingInTheRandomLayout(stage);
         textView1.setOnClickListener(listener);
         textView2.setOnClickListener(listener);
         textView3.setOnClickListener(listener);
@@ -139,6 +138,14 @@ public class GameActivity extends AppCompatActivity {
         textView88.setOnClickListener(listener);
         textView99.setOnClickListener(listener);
         if (savedInstanceState != null) {
+            handlerThread.start();
+            threadHandler = new Handler(handlerThread.getLooper());
+            threadHandler.post(loadingRunnable);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             isGame = savedInstanceState.getBoolean("isGame");
             stage = savedInstanceState.getInt("stage");
             counter = savedInstanceState.getByte("counter");
@@ -914,7 +921,7 @@ public class GameActivity extends AppCompatActivity {
         String timeRand = randomizeLetters(loadingRunnable.getTime_word());
         String eventRand = randomizeLetters(loadingRunnable.getEvent_word());
         String coronaRand = randomizeLetters(loadingRunnable.getCorona_word());
-        String restoreRand = randomizeLetters(loadingRunnable.getEvent_word());
+        String restoreRand = randomizeLetters(loadingRunnable.getRestore_word());
         String bookmarkRand = randomizeLetters(loadingRunnable.getBookmark_word());
         String microsoftRand = randomizeLetters(loadingRunnable.getMicrosoft_word());
         if (!level && stage == 1) {
@@ -1004,13 +1011,11 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    public void onClickStartGame(View view) {
-        //level = wordLoaderService.readLevel();
-        //remainingTime = wordLoaderService.readTime();
+    public void onClickStartGame(View view) throws InterruptedException {
         handlerThread.start();
         threadHandler = new Handler(handlerThread.getLooper());
         threadHandler.post(loadingRunnable);
-
+        Thread.sleep(1000);
         level = loadingRunnable.readLevel();
         remainingTime = loadingRunnable.readTime();
         isGame = true;
@@ -1157,17 +1162,6 @@ public class GameActivity extends AppCompatActivity {
             return level;
         }
 
-//        public void writeData(String level, int time) {
-//            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
-//            SharedPreferences.Editor editor = pref.edit();
-//            editor.putInt(TIME, time);
-//            editor.putString(LEVEL, level);
-//            editor.apply();
-//            Log.d("AAA", String.valueOf(sPref.getInt(TIME, 999999999)));
-//            Log.d("AAAB", String.valueOf(time));
-//
-//        }
-
         @Override
         public void run() {
             Log.d(TAG, "run!!!!!!!!!!!");
@@ -1187,7 +1181,7 @@ public class GameActivity extends AppCompatActivity {
             restore_word = readWordRestore();
             bookmark_word = readWordBookmark();
             microsoft_word = readWordMicrosoft();
-            Log.d(TAG, "finish!!!!!!!!!!!" + time + level);
+            Log.d(TAG, "finish!!!!!!!!!!!" + readTime() + readLevel());
         }
     }
 }

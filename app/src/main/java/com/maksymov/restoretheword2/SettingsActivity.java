@@ -80,9 +80,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
     public void onClickSaveSettings(View view) {
         Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
-        //wordLoaderService.writeData(level, time);
         sharedPreferences = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
-
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(TIME, time);
         editor.putString(LEVEL, level);

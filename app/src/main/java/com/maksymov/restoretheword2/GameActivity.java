@@ -4,13 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.IBinder;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,7 +21,10 @@ import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
 
-    WordLoaderService wordLoaderService;
+    private HandlerThread handlerThread = new HandlerThread("HandlerThread");
+    private Handler threadHandler;
+    LoadingRunnable loadingRunnable;
+
 
     private boolean isGame = false;
     private CountDownTimer countDownTimer = null;
@@ -79,6 +81,7 @@ public class GameActivity extends AppCompatActivity {
         outState.putByte("counter", counter);
         outState.putLong("remainingTime", remainingTime);
         outState.putBoolean("isGame", isGame);
+        outState.putBoolean("level", level);
         Log.d("Час при збереженні", String.valueOf(remainingTime));
         if (countDownTimer != null)
             countDownTimer.onFinish();
@@ -88,6 +91,8 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+
+        loadingRunnable = new LoadingRunnable();
 
         textView1 = findViewById(R.id.firstR);
         textView2 = findViewById(R.id.secondR);
@@ -114,18 +119,6 @@ public class GameActivity extends AppCompatActivity {
         counterTextView.setText("0");
         timer = findViewById(R.id.timer);
         stage = 1;
-
-        serviceConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder binder) {
-                wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                wordLoaderService = null;
-            }
-        };
         //fillingInTheRandomLayout(stage);
         textView1.setOnClickListener(listener);
         textView2.setOnClickListener(listener);
@@ -169,50 +162,25 @@ public class GameActivity extends AppCompatActivity {
             textView99.setText(savedInstanceState.getString("textView99"));
             counterTextView.setText(savedInstanceState.getString("counterTextView"));
             remainingTime = savedInstanceState.getLong("remainingTime");
+            level = savedInstanceState.getBoolean("level");
             startButton.setVisibility(View.GONE);
             letters.setVisibility(View.VISIBLE);
             if (isGame)
-            countDownTimer = new CountDownTimer((remainingTime * 1000), 1000) {
-                public void onTick(long millisUntilFinished) {
-                    remainingTime = millisUntilFinished / 1000;
-                    timer.setText(millisUntilFinished / 1000 + "");
-                }
+                countDownTimer = new CountDownTimer((remainingTime * 1000), 1000) {
+                    public void onTick(long millisUntilFinished) {
+                        remainingTime = millisUntilFinished / 1000;
+                        timer.setText(millisUntilFinished / 1000 + "");
+                    }
 
-                @Override
-                public void onFinish() {
-                    dialogFinish();
-                }
-            }.start();
+                    @Override
+                    public void onFinish() {
+                        dialogFinish();
+                    }
+                }.start();
 
         }
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Intent intent = new Intent(this, WordLoaderService.class);
-        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(serviceConnection);
-    }
-
-    private ServiceConnection serviceConnection =
-            new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder binder) {
-                    wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    wordLoaderService = null;
-                }
-            };
 
     private void dialogFinish() {
         new AlertDialog.Builder(this)
@@ -861,12 +829,12 @@ public class GameActivity extends AppCompatActivity {
 
     private boolean checkForFinish(int stage) {
         StringBuilder str = new StringBuilder();
-        StringBuilder time = new StringBuilder(wordLoaderService.readWordTime());
-        StringBuilder event = new StringBuilder(wordLoaderService.readWordEvent());
-        StringBuilder corona = new StringBuilder(wordLoaderService.readWordCorona());
-        StringBuilder restore = new StringBuilder(wordLoaderService.readWordRestore());
-        StringBuilder bookmark = new StringBuilder(wordLoaderService.readWordBookmark());
-        StringBuilder microsoft = new StringBuilder(wordLoaderService.readWordMicrosoft());
+        StringBuilder time = new StringBuilder(loadingRunnable.getTime_word());
+        StringBuilder event = new StringBuilder(loadingRunnable.getEvent_word());
+        StringBuilder corona = new StringBuilder(loadingRunnable.getCorona_word());
+        StringBuilder restore = new StringBuilder(loadingRunnable.getRestore_word());
+        StringBuilder bookmark = new StringBuilder(loadingRunnable.getBookmark_word());
+        StringBuilder microsoft = new StringBuilder(loadingRunnable.getMicrosoft_word());
         str.append(textView11.getText().toString());
         str.append(textView22.getText().toString());
         str.append(textView33.getText().toString());
@@ -943,12 +911,12 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void fillingInTheRandomLayout(int stage) {
-        String timeRand = randomizeLetters(wordLoaderService.readWordTime());
-        String eventRand = randomizeLetters(wordLoaderService.readWordEvent());
-        String coronaRand = randomizeLetters(wordLoaderService.readWordCorona());
-        String restoreRand = randomizeLetters(wordLoaderService.readWordRestore());
-        String bookmarkRand = randomizeLetters(wordLoaderService.readWordBookmark());
-        String microsoftRand = randomizeLetters(wordLoaderService.readWordMicrosoft());
+        String timeRand = randomizeLetters(loadingRunnable.getTime_word());
+        String eventRand = randomizeLetters(loadingRunnable.getEvent_word());
+        String coronaRand = randomizeLetters(loadingRunnable.getCorona_word());
+        String restoreRand = randomizeLetters(loadingRunnable.getEvent_word());
+        String bookmarkRand = randomizeLetters(loadingRunnable.getBookmark_word());
+        String microsoftRand = randomizeLetters(loadingRunnable.getMicrosoft_word());
         if (!level && stage == 1) {
             textView1.setText(String.valueOf(timeRand.charAt(0)));
             textView2.setText(String.valueOf(timeRand.charAt(1)));
@@ -1037,13 +1005,24 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void onClickStartGame(View view) {
-        if (wordLoaderService == null) return;
-        level = wordLoaderService.readLevel();
-        remainingTime = wordLoaderService.readTime();
+        //level = wordLoaderService.readLevel();
+        //remainingTime = wordLoaderService.readTime();
+        handlerThread.start();
+        threadHandler = new Handler(handlerThread.getLooper());
+        threadHandler.post(loadingRunnable);
+
+        level = loadingRunnable.readLevel();
+        remainingTime = loadingRunnable.readTime();
         isGame = true;
         letters.setVisibility(View.VISIBLE);
         startButton.setClickable(false);
         startButton.setVisibility(View.GONE);
+
+
+        Log.d("TAG", "onClickStartGame: " + loadingRunnable.readTime());
+        Log.d("TAG", "onClickStartGame: " + loadingRunnable.readLevel());
+
+
         countDownTimer = new CountDownTimer(remainingTime, 1000) {
             public void onTick(long millisUntilFinished) {
                 remainingTime = millisUntilFinished / 1000;
@@ -1057,5 +1036,158 @@ public class GameActivity extends AppCompatActivity {
             }
         }.start();
         fillingInTheRandomLayout(stage);
+    }
+
+    class LoadingRunnable implements Runnable {
+
+        private static final String TAG = "GameActivity";
+        private int time = 0;
+        private boolean level = false;
+
+        private SharedPreferences sPref;
+        private final String LEVEL = "LEVEL";
+        private final String TIME = "TIME";
+
+        private final String TIME_WORD = "time";
+        private final String EVENT_WORD = "event";
+        private final String CORONA_WORD = "corona";
+        private final String RESTORE_WORD = "restore";
+        private final String BOOKMARK_WORD = "bookmark";
+        private final String MICROSOFT_WORD = "microsoft";
+
+        private String time_word;
+        private String event_word;
+        private String corona_word;
+        private String restore_word;
+        private String bookmark_word;
+        private String microsoft_word;
+
+
+        public String getTime_word() {
+            return time_word;
+        }
+
+        public void setTime_word(String time_word) {
+            this.time_word = time_word;
+        }
+
+        public String getEvent_word() {
+            return event_word;
+        }
+
+        public void setEvent_word(String event_word) {
+            this.event_word = event_word;
+        }
+
+        public String getCorona_word() {
+            return corona_word;
+        }
+
+        public void setCorona_word(String corona_word) {
+            this.corona_word = corona_word;
+        }
+
+        public String getRestore_word() {
+            return restore_word;
+        }
+
+        public void setRestore_word(String restore_word) {
+            this.restore_word = restore_word;
+        }
+
+        public String getBookmark_word() {
+            return bookmark_word;
+        }
+
+        public void setBookmark_word(String bookmark_word) {
+            this.bookmark_word = bookmark_word;
+        }
+
+        public String getMicrosoft_word() {
+            return microsoft_word;
+        }
+
+        public void setMicrosoft_word(String microsoft_word) {
+            this.microsoft_word = microsoft_word;
+        }
+
+
+
+        public void fillInWords() {
+            SharedPreferences pref = getSharedPreferences("MyPref", MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString(TIME_WORD, "TIME");
+            editor.putString(EVENT_WORD, "EVENT");
+            editor.putString(CORONA_WORD, "CORONA");
+            editor.putString(RESTORE_WORD, "RESTORE");
+            editor.putString(BOOKMARK_WORD, "BOOKMARK");
+            editor.putString(MICROSOFT_WORD, "MICROSOFT");
+            editor.apply();
+        }
+
+        public String readWordTime() {
+            return sPref.getString(TIME_WORD, "");
+        }
+
+        public String readWordEvent() {
+            return sPref.getString(EVENT_WORD, "");
+        }
+
+        public String readWordCorona() {
+            return sPref.getString(CORONA_WORD, "");
+        }
+
+        public String readWordRestore() {
+            return sPref.getString(RESTORE_WORD, "");
+        }
+
+        public String readWordBookmark() {
+            return sPref.getString(BOOKMARK_WORD, "");
+        }
+
+        public String readWordMicrosoft() {
+            return sPref.getString(MICROSOFT_WORD, "");
+        }
+
+        public int readTime() {
+            return time;
+        }
+
+        public boolean readLevel() {
+            return level;
+        }
+
+//        public void writeData(String level, int time) {
+//            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+//            SharedPreferences.Editor editor = pref.edit();
+//            editor.putInt(TIME, time);
+//            editor.putString(LEVEL, level);
+//            editor.apply();
+//            Log.d("AAA", String.valueOf(sPref.getInt(TIME, 999999999)));
+//            Log.d("AAAB", String.valueOf(time));
+//
+//        }
+
+        @Override
+        public void run() {
+            Log.d(TAG, "run!!!!!!!!!!!");
+            sPref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+            fillInWords();
+            //settings
+            time = sPref.getInt(TIME, 999999999);
+            if (sPref.getString(LEVEL, "short").equals("short")) {
+                level = false;
+            } else if (sPref.getString(LEVEL, "short").equals("veteran")) {
+                level = true;
+            }
+            //words
+            time_word = readWordTime();
+            event_word = readWordEvent();
+            corona_word = readWordCorona();
+            restore_word = readWordRestore();
+            bookmark_word = readWordBookmark();
+            microsoft_word = readWordMicrosoft();
+            Log.d(TAG, "finish!!!!!!!!!!!" + time + level);
+        }
     }
 }

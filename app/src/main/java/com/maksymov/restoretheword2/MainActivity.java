@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
-    WordLoaderService wordLoaderService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,37 +24,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickStartGame(View view) {
-        if (wordLoaderService == null) return;
-        if (wordLoaderService.readTime() == 999999999)
-            wordLoaderService.writeData("short", 60000);
         Intent intent = new Intent(MainActivity.this, GameActivity.class);
         startActivity(intent);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Intent intent = new Intent(this, WordLoaderService.class);
-        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(serviceConnection);
-    }
-
-    private ServiceConnection serviceConnection =
-            new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder binder) {
-                    wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    wordLoaderService = null;
-                }
-            };
 
 }

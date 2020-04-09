@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -18,11 +19,11 @@ public class SettingsActivity extends AppCompatActivity {
     private String[] levels = {"Beginner (4 or 5 or 6 word length)", "Veteran (7 or 8 or 9 word length)"};
     private String[] times = {"1 min", "2 min", "3 min"};
 
+    private final String LEVEL = "LEVEL";
+    private final String TIME = "TIME";
+
     final String LOG_TAG = "myLog";
-    private Intent intent;
-    private WordLoaderService wordLoaderService;
-    private ServiceConnection sConn;
-    boolean bound = false;
+    private SharedPreferences sharedPreferences;
     private String level;
     private int time;
 
@@ -30,20 +31,6 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-//        intent = new Intent(this, WordLoaderService.class);
-//        sConn = new ServiceConnection() {
-//
-//            public void onServiceConnected(ComponentName name, IBinder binder) {
-//                Log.d(LOG_TAG, "Settings onServiceConnected");
-//                wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
-//                bound = true;
-//            }
-//
-//            public void onServiceDisconnected(ComponentName name) {
-//                Log.d(LOG_TAG, "Settings onServiceDisconnected");
-//                bound = false;
-//            }
-//        };
 
         // адаптер
         ArrayAdapter<String> adapterLevel = new ArrayAdapter<String>(this, R.layout.spinner_item, levels);
@@ -91,37 +78,16 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
     }
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Intent intent = new Intent(this, WordLoaderService.class);
-        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(serviceConnection);
-    }
-
-    private ServiceConnection serviceConnection =
-            new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder binder) {
-                    wordLoaderService = ((WordLoaderService.CustomBinder) binder).getService();
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    wordLoaderService = null;
-                }
-            };
-
     public void onClickSaveSettings(View view) {
         Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+        //wordLoaderService.writeData(level, time);
+        sharedPreferences = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(TIME, time);
+        editor.putString(LEVEL, level);
+        editor.apply();
         startActivity(intent);
-        if (wordLoaderService == null) return;
-        wordLoaderService.writeData(level, time);
 
     }
 }

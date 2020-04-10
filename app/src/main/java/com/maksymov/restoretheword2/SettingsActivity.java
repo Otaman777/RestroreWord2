@@ -78,6 +78,14 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        //Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+        //startActivity(intent);
+    }
+
     public void onClickSaveSettings(View view) {
         Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
         sharedPreferences = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);

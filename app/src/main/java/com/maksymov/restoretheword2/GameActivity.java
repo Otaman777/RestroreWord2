@@ -25,7 +25,6 @@ public class GameActivity extends AppCompatActivity {
     private Handler threadHandler;
     LoadingRunnable loadingRunnable;
 
-
     private boolean isGame = false;
     private CountDownTimer countDownTimer = null;
     private boolean level = false;
@@ -93,6 +92,9 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         loadingRunnable = new LoadingRunnable();
+        handlerThread.start();
+        threadHandler = new Handler(handlerThread.getLooper());
+        threadHandler.post(loadingRunnable);
 
         textView1 = findViewById(R.id.firstR);
         textView2 = findViewById(R.id.secondR);
@@ -1012,10 +1014,8 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void onClickStartGame(View view) throws InterruptedException {
-        handlerThread.start();
-        threadHandler = new Handler(handlerThread.getLooper());
-        threadHandler.post(loadingRunnable);
-        Thread.sleep(1000);
+
+        //Thread.sleep(1000);
         level = loadingRunnable.readLevel();
         remainingTime = loadingRunnable.readTime();
         isGame = true;

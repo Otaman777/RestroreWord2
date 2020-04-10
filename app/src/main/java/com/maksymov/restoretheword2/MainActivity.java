@@ -18,6 +18,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
+    @Override
+    public void onDestroy() {
+        moveTaskToBack(true);
+        super.onDestroy();
+        System.runFinalizersOnExit(true);
+        System.exit(0);
+    }
+
+
     public void onClickStartSettings(View view) {
         Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(intent);
